@@ -53,21 +53,40 @@ app.get('/getAction/:action/:button', (req, res)=>{
 
         // io.emit('command', command);
         res.send(fakebutton);
-        // robotcop.moveMouse(25, 140)
+        robotcop.moveMouse(370, 450);
+        robotcop.keyToggle(String.fromCharCode(16), 'down', 'shift');
+
         // setTimeout(()=>{
         //   robotcop.mouseClick(button);
         // }, 500);
         //Mouse down at 0, 0 and then drag to 100, 100 and release.
-        robotcop.setMouseDelay(1000);
-        robotcop.moveMouse(25, 140);
+        // robotcop.keyToggle('shift', 'down');
         robotcop.mouseToggle("down");
+        // robotcop.keyToggle('shift', 'down');
+        robotcop.dragMouse(370, 550);
+        // robotcop.setMouseDelay(100);
+        // robotcop.setKeyboardDelay(100);
+        // robotcop.moveMouse(370, 420);
 
-        for (let index = 0; index < 10; index++) {
-          let mouse = robotcop.getMousePos();
-          logger(mouse.y);
-          robotcop.dragMouse(25, mouse.y + 50);
+        setTimeout(()=>{
+          robotcop.dragMouse(370, 600);
+          robotcop.keyToggle(String.fromCharCode(16), 'up', 'shift');
+          robotcop.mouseToggle("up");
+          // robotcop.keyToggle("shift", "down");
+          // robotcop.mouseToggle("down");
+          // robotcop.dragMouse(370, 650);
+        }, 5000);
+        // // robotcop.dragMouse(370, 650);
+        // setTimeout(()=>{
+        //   // robotcop.mouseToggle("down");
+        // //   robotcop.dragMouse(370, 650);
+        // }, 1000);
+        // for (let index = 0; index < 10; index++) {
+        //   let mouse = robotcop.getMousePos();
+        //   logger(mouse.y);
+        //   robotcop.dragMouse(25, mouse.y + 50);
 
-        }
+        // }
 
 
 
