@@ -8,6 +8,7 @@ const server = http.createServer(app);
 const io = require('socket.io')(server);
 const _ = require('lodash');
 const robotcop = require('robotjs');
+const opn = require('opn');
 
 const port = process.env.PORT || 3000;
 
@@ -20,12 +21,25 @@ server.listen(port, () => {
 // http://localhost:3000/pinch/down/370/550
 // http://localhost:3000/pinch/up/370/600
 
+app.get('/', (req, res)=>{
+  let defaultPage = 'https://cdn.rawgit.com/hammerjs/touchemulator/master/tests/manual/hammer.html';
+
+  try {
+    opn(defaultPage);
+    res.status(200);
+    res.send('Successfully sent');
+  } catch (error) {
+    res.status(400);
+    res.send(error);
+  }
+});
+
 app.get('/move/:x/:y', (req, res)=>{
-  let command = '';
+  let command = {};
   let x = req.params.x || 0;
   let y = req.params.y || 0;
 
-  logger('Moving Jerry to ', x, y);
+  logger(`Moving Jerry to ${x}, ${y}`);
 
   command = {
     event: 'move',
@@ -35,14 +49,15 @@ app.get('/move/:x/:y', (req, res)=>{
 
   robotcop.moveMouse(x, y);
   io.emit('command', command);
+  res.status(200);
   res.send('Successfully sent');
 });
 
-app.get('/click/:button', (req, res)=>{
+app.get('/click/:button?', (req, res)=>{
   let command = '';
   let button = req.params.button || 'left';
 
-  logger('Clicking Jerry on ', button);
+  logger(`Clicking Jerry on ${button}`);
 
   command = {
     event: 'click',
@@ -51,12 +66,13 @@ app.get('/click/:button', (req, res)=>{
 
   robotcop.mouseClick(button);
   io.emit('command', command);
+  res.status(200);
   res.send('Successfully sent');
 });
 
-app.get('/pinch/:direction/:x/:y', (res, req)=>{
-  let command = '';
-  let direction = res.params.direction || 'down';
+app.get('/pinch/:direction/:x?/:y?', (req, res)=>{
+  let command = {};
+  let direction = req.params.direction || 'down';
   let x = req.params.x || 0;
   let y = req.params.y || 0;
 
@@ -68,7 +84,7 @@ app.get('/pinch/:direction/:x/:y', (res, req)=>{
     robotcop.mouseToggle("up"); // release mouse
   }
 
-  robotcop.dragMouse(x, y);
+  logger(`Pinching Jerry at ${x}, ${y} with ${direction}`);
 
   command = {
     event: 'pinch',
@@ -78,6 +94,33 @@ app.get('/pinch/:direction/:x/:y', (res, req)=>{
   }
 
   io.emit('command', command);
+  res.status(200);
+  res.send('Successfully sent');
+});
+
+app.get('/drag/:x/:y', (req, res)=>{
+  let command = {};
+  let x = req.params.x || 0;
+  let y = req.params.y || 0;
+  let timer = 500;
+
+  robotcop.mouseToggle("down");
+
+  setTimeout(()=>{
+    robotcop.moveMouse(x, y);
+    robotcop.mouseToggle("up");
+  }, timer);
+
+  logger(`Draging Jerry to ${x}, ${y}`);
+
+  command = {
+    event: 'drag',
+    x: x,
+    y: y
+  }
+
+  io.emit('command', command);
+  res.status(200);
   res.send('Successfully sent');
 });
 
