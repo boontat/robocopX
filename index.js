@@ -35,6 +35,7 @@ app.get('/', (req, res)=>{
 });
 
 app.get('/move/:x/:y', (req, res)=>{
+  robotcop.setMouseDelay(800);
   let command = {};
   let x = req.params.x || 0;
   let y = req.params.y || 0;
@@ -98,25 +99,37 @@ app.get('/pinch/:direction/:x?/:y?', (req, res)=>{
   res.send('Successfully sent');
 });
 
-app.get('/drag/:x/:y', (req, res)=>{
+app.get('/mouseHold/:direction', (req, res)=>{
+  robotcop.setMouseDelay(2000);
   let command = {};
-  let x = req.params.x || 0;
-  let y = req.params.y || 0;
-  let timer = 500;
+  // let x = req.params.x || 0;
+  // let y = req.params.y || 0;
+  let timer = 1000;
+  let direction = req.params.direction || "down";
 
-  robotcop.mouseToggle("down");
+  if (direction === "down") {
+    setTimeout(()=>{
+      robotcop.mouseToggle("down");
+    }, timer);
+  } else if (direction === "up") {
+    setTimeout(()=>{
+      robotcop.mouseToggle("up");
+    }, timer);
+  }
 
-  setTimeout(()=>{
-    robotcop.moveMouse(x, y);
-    robotcop.mouseToggle("up");
-  }, timer);
 
-  logger(`Draging Jerry to ${x}, ${y}`);
+  // setTimeout(()=>{
+  //   robotcop.moveMouse(x, y);
+  //   robotcop.mouseToggle("up");
+  // }, timer);
+
+  logger(`Hold Jerry on ${direction}`);
 
   command = {
-    event: 'drag',
-    x: x,
-    y: y
+    event: 'mouseHold',
+    direction: direction
+    // x: x,
+    // y: y
   }
 
   io.emit('command', command);
